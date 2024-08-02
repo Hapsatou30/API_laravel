@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,10 +10,19 @@ class ArticleController extends Controller
 {
     public function index()
     {
-        // Retourner tous les articles de l'utilisateur authentifié en format JSON
-        return response()->json(Auth::user()->articles, 200);
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+    
+        // Accéder à tous les articles de l'utilisateur authentifié
+        $articles = $user->articles;
+    
+        // Retourner les articles en format JSON
+        return response()->json($articles, 200);
     }
-
+    
     public function store(Request $request)
     {
         // Valider les données de la requête
@@ -22,21 +30,34 @@ class ArticleController extends Controller
             'title' => 'required|string|max:255',
             'body' => 'required|string',
         ]);
-
+    
+        // Récupérer l'utilisateur authentifié
+        $user = Auth::user();
+    
         // Créer un nouvel article associé à l'utilisateur authentifié
-        $article = Auth::user()->articles()->create($validatedData);
-
+        $article = new Article($validatedData);
+        $article->user_id = $user->id;
+        $article->save();
+    
         // Retourner la réponse en format JSON
         return response()->json($article, 201);
     }
+    
+    
 
     public function show($id)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         // Trouver l'article par ID
         $article = Article::find($id);
 
         // Vérifier si l'article appartient à l'utilisateur authentifié
-        if (!$article || $article->user_id !== Auth::id()) {
+        if (!$article || $article->user_id !== $user->id) {
             return response()->json(['message' => 'Article not found or access denied'], 404);
         }
 
@@ -46,11 +67,17 @@ class ArticleController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         // Trouver l'article par ID
         $article = Article::find($id);
 
         // Vérifier si l'article appartient à l'utilisateur authentifié
-        if (!$article || $article->user_id !== Auth::id()) {
+        if (!$article || $article->user_id !== $user->id) {
             return response()->json(['message' => 'Article not found or access denied'], 404);
         }
 
@@ -69,11 +96,17 @@ class ArticleController extends Controller
 
     public function destroy($id)
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         // Trouver l'article par ID
         $article = Article::find($id);
 
         // Vérifier si l'article appartient à l'utilisateur authentifié
-        if (!$article || $article->user_id !== Auth::id()) {
+        if (!$article || $article->user_id !== $user->id) {
             return response()->json(['message' => 'Article not found or access denied'], 404);
         }
 

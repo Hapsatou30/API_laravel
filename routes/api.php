@@ -5,9 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
 
-// Déclare une ressource API pour le contrôleur des articles
-Route::apiResource('articles', ArticleController::class);
-
 // Route pour l'inscription d'un utilisateur
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -22,3 +19,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     // Retourne les informations de l'utilisateur actuellement authentifié
     return $request->user();
 });
+
+// Regrouper les routes de la ressource articles avec le middleware 'auth:sanctum'
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('articles', ArticleController::class);
+});
+
