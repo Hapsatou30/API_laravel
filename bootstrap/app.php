@@ -15,9 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'cors' => HandleCors::class,
-            'csrf' => \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,  // Ajout du middleware CSRF
-            'encrypt_cookies' => \Illuminate\Cookie\Middleware\EncryptCookies::class,
-            'auth_session' => \Laravel\Sanctum\Http\Middleware\AuthenticateSession::class,
+           
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
