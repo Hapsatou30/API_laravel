@@ -7,34 +7,38 @@ use Illuminate\Support\Facades\Auth;
 
 class ArticleController extends Controller
 {
-   // Afficher tous les articles
+    // Afficher tous les articles
     public function index()
     {
-        $articles = Article::with('user')->get(); // Affiche tous les articles avec leurs auteurs
+        // Récupérer tous les articles avec leurs auteurs associés
+        $articles = Article::with('user')->get();
+        // Retourner les articles en format JSON avec un code de statut 200
         return response()->json($articles, 200);
     }
-
 
     // Afficher les détails d'un article spécifique
     public function show($id)
     {
+        // Trouver l'article par ID avec son auteur associé
         $article = Article::with('user')->find($id);
-    
+
+        // Vérifier si l'article existe
         if (!$article) {
-            return response()->json(['message' => 'Article not found'], 404);
+            // Si l'article n'existe pas, retourner un message d'erreur avec un code de statut 404
+            return response()->json(['message' => 'Article non trouvé'], 404);
         }
-    
+
+        // Retourner l'article en format JSON avec un code de statut 200
         return response()->json($article, 200);
     }
-    
 
     // Créer un nouvel article
     public function store(Request $request)
     {
         // Valider les données de la requête
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255',
-            'body' => 'required|string',
+            'title' => 'required|string|max:255', 
+            'body' => 'required|string', 
             'image_path' => 'nullable|string', 
             'categorie' => 'required|string',
         ]);
@@ -42,68 +46,76 @@ class ArticleController extends Controller
         // Récupérer l'utilisateur authentifié
         $user = Auth::user();
 
-        // Créer un nouvel article associé à l'utilisateur authentifié
+        // Créer un nouvel article avec les données validées
         $article = new Article($validatedData);
-        $article->user_id = $user->id;
-        $article->save();
+        $article->user_id = $user->id; // Associer l'article à l'utilisateur authentifié
+        $article->save(); 
 
-        // Retourner la réponse en format JSON
+        // Retourner l'article créé en format JSON avec un code de statut 201 (créé)
         return response()->json($article, 201);
     }
 
     // Mettre à jour un article existant
     public function update(Request $request, $id)
     {
+        // Récupérer l'utilisateur authentifié
         $user = Auth::user();
 
+        // Vérifier si l'utilisateur est authentifié
         if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            // Si l'utilisateur n'est pas authentifié, retourner un message d'erreur avec un code de statut 401 (non autorisé)
+            return response()->json(['message' => 'Non autorisé'], 401);
         }
 
         // Trouver l'article par ID
         $article = Article::find($id);
 
-        // Vérifier si l'article appartient à l'utilisateur authentifié
+        // Vérifier si l'article existe et appartient à l'utilisateur authentifié
         if (!$article || $article->user_id !== $user->id) {
-            return response()->json(['message' => 'Article not found or access denied'], 404);
+            // Si l'article n'existe pas ou n'appartient pas à l'utilisateur, retourner un message d'erreur avec un code de statut 404
+            return response()->json(['message' => 'Article non trouvé ou accès refusé'], 404);
         }
 
-        // Valider les données de la requête
+        // Valider les données de la requête (les champs sont optionnels)
         $validatedData = $request->validate([
-            'title' => 'sometimes|string|max:255',
-            'body' => 'sometimes|string',
+            'title' => 'required|string|max:255', 
+            'body' => 'required|string', 
             'image_path' => 'nullable|string', 
-            'categorie' => 'required|string',
+            'categorie' => 'required|string', 
         ]);
 
-        // Mettre à jour l'article
+        // Mettre à jour l'article avec les données validées
         $article->update($validatedData);
 
-        // Retourner l'article mis à jour en format JSON
+        // Retourner l'article mis à jour en format JSON avec un code de statut 200
         return response()->json($article, 200);
     }
 
     // Supprimer un article
     public function destroy($id)
     {
+        // Récupérer l'utilisateur authentifié
         $user = Auth::user();
 
+        // Vérifier si l'utilisateur est authentifié
         if (!$user) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+            // Si l'utilisateur n'est pas authentifié, retourner un message d'erreur avec un code de statut 401 (non autorisé)
+            return response()->json(['message' => 'Non autorisé'], 401);
         }
 
         // Trouver l'article par ID
         $article = Article::find($id);
 
-        // Vérifier si l'article appartient à l'utilisateur authentifié
+        // Vérifier si l'article existe et appartient à l'utilisateur authentifié
         if (!$article || $article->user_id !== $user->id) {
-            return response()->json(['message' => 'Article not found or access denied'], 404);
+            // Si l'article n'existe pas ou n'appartient pas à l'utilisateur, retourner un message d'erreur avec un code de statut 404
+            return response()->json(['message' => 'Article non trouvé ou accès refusé'], 404);
         }
 
         // Supprimer l'article
         $article->delete();
 
-        // Retourner un message de succès en format JSON
-        return response()->json(['message' => 'Article deleted successfully'], 200);
+        // Retourner un message de succès en format JSON avec un code de statut 200
+        return response()->json(['message' => 'Article supprimer avec succès'], 200);
     }
 }

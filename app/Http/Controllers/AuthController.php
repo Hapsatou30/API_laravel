@@ -44,7 +44,7 @@ class AuthController extends Controller
         // Tenter de se connecter avec les informations fournies
         if (!auth()->attempt($request->only('email', 'password'))) {
             // Si la connexion échoue, retourner un message d'erreur
-            return response()->json(['message' => 'Invalid login details'], 401);
+            return response()->json(['message' => 'Informations de connexion invalide'], 401);
         }
 
         // Récupérer l'utilisateur correspondant à l'email fourni
@@ -64,6 +64,6 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         // Retourner une réponse JSON confirmant la déconnexion
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Déconnexion réussie']);
     }
 }
