@@ -10,15 +10,16 @@ use App\Models\User;
 class Article extends Model
 {
     use HasFactory;
-    protected $fillable = ['title', 'body', 'user_id','image_path','categorie',];
+    protected $fillable = ['title', 'body', 'user_id', 'image_path', 'categorie',];
 
     // Définir la relation avec l'utilisateur
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
+    // Définir la relation avec les commentaires
     public function comments()
-{
-    return $this->hasMany(Comment::class);
-}
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
