@@ -9,12 +9,11 @@ use Illuminate\Support\Facades\Auth;
 class CommentController extends Controller
 {
     // Afficher tous les commentaires d'un article
-    public function index($articleId)
+        public function index($articleId)
     {
-        $comments = Comment::where('article_id', $articleId)->get();
+        $comments = Comment::with('user')->where('article_id', $articleId)->get();
         return response()->json($comments);
     }
-
       // Ajouter un nouveau commentaire
       public function store(Request $request, $articleId)
       {
